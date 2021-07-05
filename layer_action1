@@ -60,7 +60,7 @@ if layer.selectedFeatureCount():
 
     attr_map = dict()
     for idx, field_name in field_dict.items():
-        params.filter = "{} is not NULL".format(field_names)
+        params.filter = "{name} is not NULL and length({name}) > 0".format(name=field_names)
         value = layer.aggregate(
             QgsAggregateCalculator.StringConcatenateUnique,
             field_name, params, fids=layer.selectedFeatureIds())[0]
