@@ -1,1 +1,74 @@
+from qgis.core import QgsProject
+from qgis.utils import iface
 
+field_names = ["NOM", 
+"Couche", 
+"Date_Don", 
+"Echelle", 
+"Observateu", 
+"Organisme", 
+"Nature_Don", 
+"Nature_D_1", 
+"Base_Don", 
+"Modif", 
+"Date_Modif", 
+"Epaisseur", 
+"Volume_At", 
+"Volume_CEN", 
+"Carbone", 
+"Age_rad", 
+"Age_2d", 
+"Chronozone", 
+"Hab_EU_cod", 
+"Hab_EU_lib", 
+"Hab_CB_cod", 
+"Hab_CB_lib", 
+"Hab_CH_cod", 
+"Hab_CH_lib", 
+"Hab_N2_cod", 
+"Hab_N2_lib", 
+"Hab_N2_sta", 
+"Habitat", 
+"Phytosoc", 
+"Site_N2000", 
+"Propositio", 
+"Pression", 
+"Especes", 
+"FHY_Ruiss", 
+"FHY_Etiage", 
+"FHY_Crues", 
+"FEP", 
+"FBI_Corrid", 
+"FBI_Alim", 
+"FBI_Biodiv", 
+"FBI_Carbon", 
+"DBI", 
+"DHY", 
+"Analyses", 
+"Biblio2", 
+"Comment1", 
+"Comment2", 
+"PD_perim", 
+"note_perim"]  
+
+layer = QgsProject.instance().mapLayer("[% @layer_id %]")
+field_dict = {layer.fields().indexOf(fn): fn for fn in field_names}
+
+if layer.selectedFeatureCount():
+    params = QgsAggregateCalculator.AggregateParameters()
+    params.delimiter = ','
+
+    attr_map = dict()
+    for idx, field_name in field_dict.items():
+        params.filter = "{} is not NULL".format(field_names)
+        value = layer.aggregate(
+            QgsAggregateCalculator.StringConcatenateUnique,
+            field_name, params, fids=layer.selectedFeatureIds())[0]
+        attr_map[idx] = value
+        
+    for fid in layer.selectedFeatureIds():
+        layer.changeAttributeValues(fid, attr_map)
+            
+    iface.messageBar().pushSuccess("Concatenate unique", "Done!")
+else:
+    iface.messageBar().pushInfo("Concatenate unique", "First select some features...")
