@@ -1,0 +1,11 @@
+with_variable(
+    'site_var',
+    Nom_abr,
+    aggregate( 
+        'SE_test1_pub',
+        'concatenate',
+        Intitu_abr, 
+        filter:= regexp_match(SITES_tr, @site_var), 
+        concatenator:=','
+    )
+)
